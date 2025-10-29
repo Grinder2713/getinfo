@@ -261,7 +261,7 @@ app.post('/log-visitor', async (req, res) => {
         console.log('📍 Coordinates:', `${geolocation.latitude}, ${geolocation.longitude}`);
         console.log('📍 ISP:', geolocation.isp);
         if (geolocation.district) console.log('📍 District:', geolocation.district);
-        if (geolocation.locationHints && geolocation.locationHints.d takeicts.length > 0) {
+        if (geolocation.locationHints && geolocation.locationHints.districts.length > 0) {
             console.log('📍 Location Hints from ISP:', geolocation.locationHints.districts.join(', '));
         }
     }
