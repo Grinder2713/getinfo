@@ -92,26 +92,55 @@
 
         .fraud-details {
             background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 20px 0;
+            border: 2px solid #E31837;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+            box-shadow: 0 2px 8px rgba(227, 24, 55, 0.1);
         }
 
         .fraud-details h4 {
             color: #E31837;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            border-bottom: 2px solid #E31837;
+            padding-bottom: 10px;
+        }
+
+        .fraud-category {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .fraud-category h5 {
+            color: #E31837;
             margin-bottom: 12px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .fraud-details ul {
             margin-left: 20px;
+            margin-bottom: 0;
         }
 
         .fraud-details li {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
+            line-height: 1.4;
+        }
+
+        .fraud-details li strong {
+            color: #E31837;
+            font-weight: 600;
         }
 
         .action-buttons {
@@ -224,14 +253,49 @@
             </div>
 
             <div class="fraud-details">
-                <h4>Detected Fraudulent Activities:</h4>
-                <ul>
-                    <li>Multiple failed login attempts from unknown devices</li>
-                    <li>Suspicious transaction patterns detected</li>
-                    <li>Attempts to access account from foreign IP addresses</li>
-                    <li>Unusual account modification requests</li>
-                    <li>Potential phishing attempts targeting your account</li>
-                </ul>
+                <h4>🚨 Detected Fraudulent Activities:</h4>
+                <div class="fraud-category">
+                    <h5>💰 ACH Transfer Fraud Attempts:</h5>
+                    <ul>
+                        <li><strong>Unauthorized ACH Debits:</strong> Attempted transfers from ineligible external accounts not linked to your profile</li>
+                        <li><strong>ACH Origination Fraud:</strong> Multiple failed attempts to initiate ACH transfers to unverified payees</li>
+                        <li><strong>Account Takeover Attempts:</strong> Unauthorized access attempts to modify ACH transfer limits and beneficiaries</li>
+                        <li><strong>Wire Transfer Fraud:</strong> Suspicious international wire transfer requests to high-risk jurisdictions</li>
+                        <li><strong>Bill Pay Manipulation:</strong> Attempts to modify existing payees and payment amounts without proper authentication</li>
+                    </ul>
+                </div>
+                
+                <div class="fraud-category">
+                    <h5>🔐 Account Security Violations:</h5>
+                    <ul>
+                        <li><strong>Multiple Failed Authentication:</strong> 12+ failed login attempts from unrecognized devices and locations</li>
+                        <li><strong>Geographic Anomalies:</strong> Account access from foreign IP addresses inconsistent with your typical usage patterns</li>
+                        <li><strong>Device Fingerprint Mismatch:</strong> Login attempts from devices not previously associated with your account</li>
+                        <li><strong>Credential Compromise:</strong> Potential unauthorized access using compromised login credentials</li>
+                        <li><strong>Session Hijacking:</strong> Suspicious concurrent sessions from multiple geographic locations</li>
+                    </ul>
+                </div>
+                
+                <div class="fraud-category">
+                    <h5>⚠️ Transaction Pattern Anomalies:</h5>
+                    <ul>
+                        <li><strong>Velocity Alerts:</strong> Unusually high transaction volumes inconsistent with your historical spending patterns</li>
+                        <li><strong>Amount Threshold Violations:</strong> Transactions exceeding your established daily and monthly limits</li>
+                        <li><strong>Merchant Category Anomalies:</strong> Purchases from high-risk merchant categories not typical for your account</li>
+                        <li><strong>Time-based Irregularities:</strong> Transactions occurring during unusual hours inconsistent with your normal activity</li>
+                        <li><strong>Duplicate Transaction Attempts:</strong> Multiple identical transaction requests suggesting automated fraud attempts</li>
+                    </ul>
+                </div>
+                
+                <div class="fraud-category">
+                    <h5>🛡️ Regulatory Compliance Violations:</h5>
+                    <ul>
+                        <li><strong>OFAC Sanctions Screening:</strong> Attempted transactions involving entities on the Office of Foreign Assets Control watchlist</li>
+                        <li><strong>AML Red Flags:</strong> Activities triggering Anti-Money Laundering monitoring systems</li>
+                        <li><strong>KYC Violations:</strong> Attempts to modify account information without proper Know Your Customer verification</li>
+                        <li><strong>Regulation E Violations:</strong> Unauthorized electronic fund transfer attempts not properly authenticated</li>
+                    </ul>
+                </div>
             </div>
 
             <p>We have temporarily restricted certain account features to protect your funds. Please review the following information and take immediate action:</p>
