@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Scammer Data Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .admin-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .admin-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .admin-content {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .visitor-section {
+            margin: 30px 0;
+        }
+
+        .visitor-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .visitor-item h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .visitor-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-group {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .detail-group h5 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .detail-item {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .detail-item strong {
+            color: #333;
+        }
+
+        .device-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .device-mobile {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .device-tablet {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .device-desktop {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .actions {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .fingerprint {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .webgl-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .plugins-list {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🔒 Admin Panel - Passive Scammer Data Collection</h1>
+            <p>Comprehensive data collection - NO USER ACTION REQUIRED</p>
+        </div>
+
+        <div class="admin-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Total Visitors</h4>
+                    <div class="number" id="totalVisitors">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Actions</h4>
+                    <div class="number" id="totalActions">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Interactions</h4>
+                    <div class="number" id="totalInteractions">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Scroll Events</h4>
+                    <div class="number" id="totalScrolls">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Mouse Movements</h4>
+                    <div class="number" id="totalMouseMovements">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Keyboard Events</h4>
+                    <div class="number" id="totalKeyboardEvents">0</div>
+                </div>
+            </div>
+
+            <div class="visitor-section">
+                <h3>🎯 Captured Scammer Data</h3>
+                <div id="visitorsList">
+                    <div class="loading">Loading visitor data...</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="/" class="btn btn-primary">View Scammer Page</a>
+                <a href="/download" class="btn btn-success">Download All Data</a>
+                <button onclick="refreshData()" class="btn btn-warning">Refresh</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadStats() {
+            fetch('/admin/api')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalVisitors').textContent = data.totalVisitors || 0;
+                    document.getElementById('totalActions').textContent = data.totalActions || 0;
+                    document.getElementById('totalInteractions').textContent = data.totalInteractions || 0;
+                    document.getElementById('totalScrolls').textContent = data.totalScrolls || 0;
+                    document.getElementById('totalMouseMovements').textContent = data.totalMouseMovements || 0;
+                    document.getElementById('totalKeyboardEvents').textContent = data.totalKeyboardEvents || 0;
+                    
+                    // Display visitors
+                    const visitorsList = document.getElementById('visitorsList');
+                    if (data.visitors && data.visitors.length > 0) {
+                        visitorsList.innerHTML = data.visitors.map(visitor => `
+                            <div class="visitor-item">
+                                <h4>🎯 Scammer Data Captured</h4>
+                                <div class="visitor-details">
+                                    <div class="detail-group">
+                                        <h5>Basic Info</h5>
+                                        <div class="detail-item"><strong>IP:</strong> ${visitor.ip}</div>
+                                        <div class="detail-item"><strong>Time:</strong> ${new Date(visitor.timestamp).toLocaleString()}</div>
+                                        <div class="detail-item"><strong>Language:</strong> ${visitor.language}</div>
+                                        <div class="detail-item"><strong>Timezone:</strong> ${visitor.timezone}</div>
+                                        <div class="detail-item"><strong>Referrer:</strong> ${visitor.referrer || 'Direct'}</div>
+                                    </div>
+                                    
+                                    <div class="detail-group">
+                                        <h5>Device & OS</h5>
+                                        <div class="detail-item"><strong>Device:</strong> ${visitor.deviceType}</div>
+                                        <div class="detail-item"><strong>OS:</strong> ${visitor.osName}</div>
+                                        <div class="detail-item"><strong>Browser:</strong> ${visitor.browserName} ${visitor.browserVersion}</div>
+                                        <div class="detail-item"><strong>Screen:</strong> ${visitor.screenWidth}x${visitor.screenHeight}</div>
+                                        <div class="detail-item"><strong>Cores:</strong> ${visitor.hardwareConcurrency}</div>
+                                        <div class="detail-item"><strong>Touch Points:</strong> ${visitor.maxTouchPoints}</div>
+                                    </div>
+                                    
+                                    <div class="detail-group">
+                                        <h5>Device Type</h5>
+                                        <span class="device-badge ${visitor.isMobile ? 'device-mobile' : ''}">${visitor.isMobile ? 'Mobile' : ''}</span>
+                                        <span class="device-badge ${visitor.isTablet ? 'device-tablet' : ''}">${visitor.isTablet ? 'Tablet' : ''}</span>
+                                        <span class="device-badge ${visitor.isDesktop ? 'device-desktop' : ''}">${visitor.isDesktop ? 'Desktop' : ''}</span>
+                                    </div>
+                                    
+                                    <div class="detail-group">
+                                        <h5>Advanced Data</h5>
+                                        ${visitor.webgl ? `
+                                            <div class="webgl-info">
+                                                <strong>WebGL:</strong><br>
+                                                Vendor: ${visitor.webgl.vendor}<br>
+                                                Renderer: ${visitor.webgl.renderer}<br>
+                                                Version: ${visitor.webgl.version}
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${visitor.canvasFingerprint ? `
+                                            <div class="fingerprint">
+                                                <strong>Canvas Fingerprint:</strong><br>
+                                                ${visitor.canvasFingerprint.substring(0, 100)}...
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${visitor.plugins && visitor.plugins.length > 0 ? `
+                                            <div class="plugins-list">
+                                                <strong>Plugins (${visitor.plugins.length}):</strong><br>
+                                                ${visitor.plugins.map(p => p.name).join(', ')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        visitorsList.innerHTML = '<div class="loading">No visitors yet...</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                    document.getElementById('visitorsList').innerHTML = '<div class="error">Error loading data</div>';
+                });
+        }
+
+        function refreshData() {
+            loadStats();
+        }
+
+        // Load data on page load
+        loadStats();
+
+        // Auto-refresh every 10 seconds
+        setInterval(loadStats, 10000);
+    </script>
+</body>
+</html>
