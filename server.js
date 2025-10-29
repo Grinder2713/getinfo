@@ -51,8 +51,15 @@ function getGeolocation(ip) {
         // Use ip-api.com (free, no API key required)
         const url = `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,zip,lat,lon,timezone,isp,org,as,query`;
         
-        http.get(url, (res) => {
+        const request = http.get(url, { timeout: 5000 }, (res) => {
             let data = '';
+            
+            // Check if response is OK
+            if (res.statusCode !== 200) {
+                console.log(`Geolocation API returned status ${res.statusCode}`);
+                resolve(null);
+                return;
+            }
             
             res.on('data', (chunk) => {
                 data += chunk;
@@ -60,8 +67,15 @@ function getGeolocation(ip) {
             
             res.on('end', () => {
                 try {
+                    // Check if data is empty
+                    if (!data || data.trim() === '') {
+                        console.log('Geolocation API returned empty response');
+                        resolve(null);
+                        return;
+                    }
+                    
                     const geo = JSON.parse(data);
-                    if (geo.status === 'success') {
+                    if (geo && geo.status === 'success') {
                         resolve({
                             country: geo.country,
                             region: geo.regionName,
@@ -78,12 +92,22 @@ function getGeolocation(ip) {
                         resolve(null);
                     }
                 } catch (error) {
-                    console.error('Error parsing geolocation:', error);
+                    console.log('Error parsing geolocation (non-critical):', error.message);
                     resolve(null);
                 }
             });
-        }).on('error', (error) => {
-            console.error('Error fetching geolocation:', error);
+        });
+        
+        // Handle timeout
+        request.on('timeout', () => {
+            request.destroy();
+            console.log('Geolocation request timeout');
+            resolve(null);
+        });
+        
+        // Handle errors
+        request.on('error', (error) => {
+            console.log('Error fetching geolocation (non-critical):', error.message);
             resolve(null);
         });
     });
@@ -103,12 +127,29 @@ function logData(data) {
 
 // Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    const indexPath = path.join(__dirname, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('Page not found');
+    }
 });
 
 // Admin panel
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+    try {
+        const adminPath = path.join(__dirname, 'admin.html');
+        if (fs.existsSync(adminPath)) {
+            res.sendFile(adminPath);
+        } else {
+            console.error('Admin.html not found at:', adminPath);
+            console.error('Current __dirname:', __dirname);
+            res.status(404).send('Admin panel not found');
+        }
+    } catch (error) {
+        console.error('Error serving admin panel:', error);
+        res.status(500).send('Error loading admin panel');
+    }
 });
 
 // Log visitor information (COMPREHENSIVE DATA COLLECTION)
