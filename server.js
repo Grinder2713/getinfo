@@ -324,27 +324,50 @@ app.post('/log-visitor-location', async (req, res) => {
         timestamp: new Date().toISOString()
     };
     
-    // Update visitor record with exact location if available
-    if (locationData.exactLocation && locationData.exactLocation.latitude) {
-        try {
-            const existingData = JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'));
-            // Find the most recent visitor entry with this IP and update it
-            for (let i = existingData.length - 1; i >= 0; i--) {
-                if (existingData[i].type === 'visitor' && existingData[i].data.ip === ip) {
-                    // Add exact location to existing record
+    try {
+        const existingData = JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'));
+        // Find the most recent visitor entry with this IP and update it
+        for (let i = existingData.length - 1; i >= 0; i--) {
+            if (existingData[i].type === 'visitor' && existingData[i].data.ip === ip) {
+                // Update with exact location if available
+                if (locationData.exactLocation && locationData.exactLocation.latitude) {
+                    // User allowed GPS - add exact coordinates
                     existingData[i].data.exactLocation = locationData.exactLocation;
                     fs.writeFileSync(LOG_FILE, JSON.stringify(existingData, null, 2));
                     console.log('✅ EXACT GPS LOCATION CAPTURED:');
                     console.log(`📍 Exact Coordinates: ${locationData.exactLocation.latitude}, ${locationData.exactLocation.longitude}`);
                     console.log(`📍 Accuracy: ${locationData.exactLocation.accuracy}m`);
-                    break;
+                } else if (locationData.exactLocation && locationData.exactLocation.denied) {
+                    // User denied GPS - ensure IP-based backup location exists
+                    existingData[i].data.exactLocation = {
+                        denied: true,
+                        error: 'User denied browser location permission'
+                    };
+                    
+                    // If IP-based location wasn't captured yet, get it now as backup
+                    if (!existingData[i].data.location) {
+                        const backupLocation = await getGeolocation(ip);
+                        if (backupLocation) {
+                            existingData[i].data.location = backupLocation;
+                            console.log('📍 BACKUP IP-BASED LOCATION CAPTURED (GPS denied):');
+                            console.log(`📍 Location: ${backupLocation.city}, ${backupLocation.region}, ${backupLocation.country}`);
+                            console.log(`📍 Coordinates: ${backupLocation.latitude}, ${backupLocation.longitude}`);
+                        }
+                    } else {
+                        console.log('📍 IP-BASED LOCATION ALREADY CAPTURED (backup for denied GPS)');
+                        if (existingData[i].data.location.city) {
+                            console.log(`📍 Backup Location: ${existingData[i].data.location.city}, ${existingData[i].data.location.region}, ${existingData[i].data.location.country}`);
+                        }
+                    }
+                    
+                    fs.writeFileSync(LOG_FILE, JSON.stringify(existingData, null, 2));
+                    console.log('❌ User denied browser GPS location - using IP-based backup');
                 }
+                break;
             }
-        } catch (error) {
-            console.error('Error updating location:', error);
         }
-    } else if (locationData.exactLocation && locationData.exactLocation.denied) {
-        console.log('❌ User denied location access');
+    } catch (error) {
+        console.error('Error updating location:', error);
     }
     
     logData({
