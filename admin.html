@@ -291,6 +291,20 @@
                                         <div class="detail-item"><strong>Referrer:</strong> ${visitor.referrer || 'Direct'}</div>
                                     </div>
                                     
+                                    ${visitor.location ? `
+                                    <div class="detail-group" style="background: #e8f5e9; border: 2px solid #4caf50;">
+                                        <h5 style="color: #2e7d32; font-weight: 600;">📍 Location Data</h5>
+                                        <div class="detail-item"><strong>City:</strong> ${visitor.location.city || 'N/A'}</div>
+                                        <div class="detail-item"><strong>State/Region:</strong> ${visitor.location.region || 'N/A'}</div>
+                                        <div class="detail-item"><strong>Country:</strong> ${visitor.location.country || 'N/A'}</div>
+                                        <div class="detail-item"><strong>ZIP Code:</strong> ${visitor.location.zip || 'N/A'}</div>
+                                        <div class="detail-item"><strong>Coordinates:</strong> ${visitor.location.latitude ? `${visitor.location.latitude}, ${visitor.location.longitude}` : 'N/A'}</div>
+                                        <div class="detail-item"><strong>ISP:</strong> ${visitor.location.isp || 'N/A'}</div>
+                                        <div class="detail-item"><strong>Organization:</strong> ${visitor.location.org || 'N/A'}</div>
+                                        ${visitor.location.latitude ? `<div class="detail-item"><a href="https://www.google.com/maps?q=${visitor.location.latitude},${visitor.location.longitude}" target="_blank" style="color: #2e7d32; font-weight: 600;">🗺️ View on Google Maps</a></div>` : ''}
+                                    </div>
+                                    ` : ''}
+                                    
                                     <div class="detail-group">
                                         <h5>Device & OS</h5>
                                         <div class="detail-item"><strong>Device:</strong> ${visitor.deviceType}</div>

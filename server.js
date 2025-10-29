@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,11 +20,73 @@ if (!fs.existsSync(LOG_FILE)) {
 
 // Helper function to get client IP
 function getClientIP(req) {
-    return req.headers['x-forwarded-for'] || 
-           req.headers['x-real-ip'] || 
-           req.connection.remoteAddress || 
-           req.socket.remoteAddress ||
-           (req.connection.socket ? req.connection.socket.remoteAddress : null);
+    let ip = req.headers['x-forwarded-for'] || 
+             req.headers['x-real-ip'] || 
+             req.connection.remoteAddress || 
+             req.socket.remoteAddress ||
+             (req.connection.socket ? req.connection.socket.remoteAddress : null);
+    
+    // Handle comma-separated IPs (from proxy)
+    if (ip && ip.includes(',')) {
+        ip = ip.split(',')[0].trim();
+    }
+    
+    // Remove IPv6 prefix if present
+    if (ip && ip.startsWith('::ffff:')) {
+        ip = ip.substring(7);
+    }
+    
+    return ip;
+}
+
+// Helper function to get geolocation from IP
+function getGeolocation(ip) {
+    return new Promise((resolve) => {
+        // Skip if IP is localhost or invalid
+        if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+            resolve(null);
+            return;
+        }
+        
+        // Use ip-api.com (free, no API key required)
+        const url = `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,zip,lat,lon,timezone,isp,org,as,query`;
+        
+        http.get(url, (res) => {
+            let data = '';
+            
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            
+            res.on('end', () => {
+                try {
+                    const geo = JSON.parse(data);
+                    if (geo.status === 'success') {
+                        resolve({
+                            country: geo.country,
+                            region: geo.regionName,
+                            city: geo.city,
+                            zip: geo.zip,
+                            latitude: geo.lat,
+                            longitude: geo.lon,
+                            timezone: geo.timezone,
+                            isp: geo.isp,
+                            org: geo.org,
+                            as: geo.as
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                } catch (error) {
+                    console.error('Error parsing geolocation:', error);
+                    resolve(null);
+                }
+            });
+        }).on('error', (error) => {
+            console.error('Error fetching geolocation:', error);
+            resolve(null);
+        });
+    });
 }
 
 // Helper function to log data
@@ -49,13 +112,20 @@ app.get('/admin', (req, res) => {
 });
 
 // Log visitor information (COMPREHENSIVE DATA COLLECTION)
-app.post('/log-visitor', (req, res) => {
+app.post('/log-visitor', async (req, res) => {
+    const ip = getClientIP(req);
     const visitorData = {
         ...req.body,
-        ip: getClientIP(req),
+        ip: ip,
         headers: req.headers,
         timestamp: new Date().toISOString()
     };
+    
+    // Get geolocation data
+    const geolocation = await getGeolocation(ip);
+    if (geolocation) {
+        visitorData.location = geolocation;
+    }
     
     logData({
         type: 'visitor',
@@ -64,6 +134,11 @@ app.post('/log-visitor', (req, res) => {
     
     console.log('🎯 SCAMMER VISITED - COMPREHENSIVE DATA CAPTURED:');
     console.log('IP Address:', visitorData.ip);
+    if (geolocation) {
+        console.log('📍 Location:', `${geolocation.city}, ${geolocation.region}, ${geolocation.country}`);
+        console.log('📍 Coordinates:', `${geolocation.latitude}, ${geolocation.longitude}`);
+        console.log('📍 ISP:', geolocation.isp);
+    }
     console.log('User Agent:', visitorData.userAgent);
     console.log('Device Type:', visitorData.deviceType);
     console.log('OS:', visitorData.osName);
@@ -216,6 +291,7 @@ app.get('/admin/api', (req, res) => {
             visitors: data.filter(item => item.type === 'visitor').map(item => ({
                 timestamp: item.data.timestamp,
                 ip: item.data.ip,
+                location: item.data.location,
                 userAgent: item.data.userAgent,
                 deviceType: item.data.deviceType,
                 osName: item.data.osName,
