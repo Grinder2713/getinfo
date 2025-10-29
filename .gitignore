@@ -1,1 +1,5 @@
 .vercel
+node_modules/
+scammer_data.json
+.env
+.DS_Store
