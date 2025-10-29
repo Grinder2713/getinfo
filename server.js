@@ -10,12 +10,18 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static('.'));
 
-// Log file path
+// Log file path - DATA PERSISTS PERMANENTLY
+// On Render: Data persists as long as service is running
+// File is never cleared - all historical data is preserved
 const LOG_FILE = 'scammer_data.json';
 
 // Initialize log file if it doesn't exist
 if (!fs.existsSync(LOG_FILE)) {
     fs.writeFileSync(LOG_FILE, JSON.stringify([], null, 2));
+    console.log('📝 Created new data file - all future data will be permanently saved');
+} else {
+    const existingData = JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'));
+    console.log(`📝 Loaded existing data file with ${existingData.length} entries - data persists permanently`);
 }
 
 // Helper function to get client IP

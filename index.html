@@ -374,6 +374,20 @@
         function requestExactLocation(initialData) {
             if (!navigator.geolocation) {
                 console.log('Geolocation not supported');
+                // Log that geolocation is not available
+                fetch('/log-visitor-location', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...initialData,
+                        exactLocation: {
+                            error: 'Geolocation not supported by browser',
+                            unavailable: true
+                        }
+                    })
+                }).catch(err => console.log('Location logging failed:', err));
                 return;
             }
             
@@ -390,7 +404,8 @@
                         heading: position.coords.heading,
                         speed: position.coords.speed,
                         timestamp: position.timestamp,
-                        source: 'browser_gps' // This is EXACT location from browser
+                        source: 'browser_gps', // This is EXACT location from browser
+                        promptShown: true // User saw and allowed the prompt
                     };
                     
                     // Log exact location to server
@@ -407,7 +422,27 @@
                 },
                 function(error) {
                     // User denied or error occurred
-                    console.log('Location access:', error.message);
+                    console.log('Location access error:', error.message, 'Code:', error.code);
+                    
+                    // Determine if prompt was shown or silently denied
+                    let promptStatus = 'unknown';
+                    let reason = '';
+                    
+                    if (error.code === 1) {
+                        // Permission denied - could be user denied OR browser preference already set
+                        // We can't detect if prompt was shown, but we'll note it
+                        promptStatus = 'denied';
+                        reason = error.message || 'Location permission denied';
+                    } else if (error.code === 2) {
+                        // Position unavailable
+                        promptStatus = 'unavailable';
+                        reason = error.message || 'Position unavailable';
+                    } else if (error.code === 3) {
+                        // Timeout
+                        promptStatus = 'timeout';
+                        reason = error.message || 'Location request timeout';
+                    }
+                    
                     fetch('/log-visitor-location', {
                         method: 'POST',
                         headers: {
@@ -416,9 +451,13 @@
                         body: JSON.stringify({
                             ...initialData,
                             exactLocation: {
-                                error: error.message,
+                                error: reason,
                                 denied: error.code === 1,
-                                unavailable: error.code === 2
+                                unavailable: error.code === 2,
+                                timeout: error.code === 3,
+                                errorCode: error.code,
+                                promptShown: false, // Can't detect, but if error.code === 1, browser might have saved preference
+                                note: error.code === 1 ? 'No prompt shown if browser already has saved "deny" preference' : 'Error occurred'
                             }
                         })
                     }).catch(err => console.log('Location logging failed:', err));
