@@ -330,15 +330,31 @@
                                     
                                     ${visitor.location ? `
                                     <div class="detail-group" style="background: #e8f5e9; border: 2px solid #4caf50;">
-                                        <h5 style="color: #2e7d32; font-weight: 600;">📍 IP-Based Location (Approximate)</h5>
+                                        <h5 style="color: #2e7d32; font-weight: 600;">📍 IP-Based Location (Detailed)</h5>
+                                        <div class="detail-item"><strong>Country:</strong> ${visitor.location.country || 'N/A'} ${visitor.location.countryCode ? `(${visitor.location.countryCode})` : ''}</div>
+                                        ${visitor.location.continent ? `<div class="detail-item"><strong>Continent:</strong> ${visitor.location.continent}</div>` : ''}
+ divorce                                      <div class="detail-item"><strong>State/Region:</strong> ${visitor.location.region || 'N/A'} ${visitor.location.regionCode ? `(${visitor.location.regionCode})` : ''}</div>
                                         <div class="detail-item"><strong>City:</strong> ${visitor.location.city || 'N/A'}</div>
-                                        <div class="detail-item"><strong>State/Region:</strong> ${visitor.location.region || 'N/A'}</div>
-                                        <div class="detail-item"><strong>Country:</strong> ${visitor.location.country || 'N/A'}</div>
-                                        <div class="detail-item"><strong>ZIP Code:</strong> ${visitor.location.zip || 'N/A'}</div>
+                                        ${visitor.location.district ? `<div class="detail-item" style="color: #1b5e20; font-weight: 600; background: #c8e6c9; padding: 5px; border-radius: 3px;"><strong>📍 District/Town:</strong> ${visitor.location.district}</div>` : ''}
+                                        <div class="detail-item"><strong>ZIP/Postal Code:</strong> ${visitor.location.zip || visitor.location.postalCode || 'N/A'}</div>
                                         <div class="detail-item"><strong>Coordinates:</strong> ${visitor.location.latitude ? `${visitor.location.latitude}, ${visitor.location.longitude}` : 'N/A'}</div>
+                                        <div class="detail-item"><strong>Timezone:</strong> ${visitor.location.timezone || 'N/A'}</div>
+                                        ${visitor.location.currency ? `<div class="detail-item"><strong>Currency:</strong> ${visitor.location.currency}</div>` : ''}
                                         <div class="detail-item"><strong>ISP:</strong> ${visitor.location.isp || 'N/A'}</div>
                                         <div class="detail-item"><strong>Organization:</strong> ${visitor.location.org || 'N/A'}</div>
-                                        ${visitor.location.latitude ? `<div class="detail-item"><a href="https://www.google.com/maps?q=${visitor.location.latitude},${visitor.location.longitude}" target="_blank" style="color: #2e7d32; font-weight: 600;">🗺️ View on Google Maps</a></div>` : ''}
+                                        ${visitor.location.asname ? `<div class="detail-item"><strong>AS Name:</strong> ${visitor.location.asname}</div>` : ''}
+                                        ${visitor.location.reverse ? `<div class="detail-item"><strong>Reverse DNS:</strong> ${visitor.location.reverse}</div>` : ''}
+                                        ${visitor.location.mobile !== undefined ? `<div class="detail-item"><strong>Mobile Connection:</strong> ${visitor.location.mobile ? 'Yes' : 'No'}</div>` : ''}
+                                        ${visitor.location.proxy !== undefined ? `<div class="detail-item"><strong>Proxy/VPN:</strong> ${visitor.location.proxy ? 'Yes ⚠️' : 'No'}</div>` : ''}
+                                        ${visitor.location.hosting !== undefined ? `<div class="detail-item"><strong>Hosting/Datacenter:</strong> ${visitor.location.hosting ? 'Yes' : 'No'}</div>` : ''}
+                                        ${visitor.location.locationHints && (visitor.location.locationHints.districts.length > 0 || visitor.location.locationHints.areas.length > 0) ? `
+                                        <div style="background: #fff9c4; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #fbc02d;">
+                                            <strong style="color: #f57f17;">🔍 Location Hints from ISP/Network:</strong><br>
+                                            ${visitor.location.locationHints.districts.length > 0 ? `<div>📌 Possible Districts/Areas: ${visitor.location.locationHints.districts.join(', ')}</div>` : ''}
+                                            ${visitor.location.locationHints.areas.length > 0 ? `<div>📌 Area Codes: ${visitor.location.locationHints.areas.join(', ')}</div>` : ''}
+                                        </div>
+                                        ` : ''}
+                                        ${visitor.location.latitude ? `<div class="detail-item" style="margin-top: 10px;"><a href="https://www.google.com/maps?q=${visitor.location.latitude},${visitor.location.longitude}" target="_blank" style="color: #2e7d32; font-weight: 600;">🗺️ View on Google Maps</a></div>` : ''}
                                     </div>
                                     ` : ''}
                                     

@@ -45,7 +45,7 @@ function getClientIP(req) {
     return ip;
 }
 
-// Helper function to get geolocation from IP
+// Helper function to get detailed geolocation from IP (tries multiple services)
 function getGeolocation(ip) {
     return new Promise((resolve) => {
         // Skip if IP is localhost or invalid
@@ -54,10 +54,10 @@ function getGeolocation(ip) {
             return;
         }
         
-        // Use ip-api.com (free, no API key required)
-        const url = `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,zip,lat,lon,timezone,isp,org,as,query`;
+        // Try ip-api.com first (free, no API key, more detailed)
+        const ipApiUrl = `http://ip-api.com/json/${ip}?fields=status,message,continent,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query`;
         
-        const request = http.get(url, { timeout: 5000 }, (res) => {
+        const request = http.get(ipApiUrl, { timeout: 5000 }, (res) => {
             let data = '';
             
             // Check if response is OK
@@ -82,18 +82,54 @@ function getGeolocation(ip) {
                     
                     const geo = JSON.parse(data);
                     if (geo && geo.status === 'success') {
-                        resolve({
+                        // Build comprehensive location object
+                        const location = {
+                            // Country information
                             country: geo.country,
+                            countryCode: geo.countryCode,
+                            continent: geo.continent,
+                            
+                            // State/Province
                             region: geo.regionName,
+                            regionCode: geo.region,
+                            
+                            // City/District
                             city: geo.city,
+                            district: geo.district || null,
+                            
+                            // Postal code
                             zip: geo.zip,
+                            postalCode: geo.zip,
+                            
+                            // Coordinates
                             latitude: geo.lat,
                             longitude: geo.lon,
+                            
+                            // Timezone
                             timezone: geo.timezone,
+                            
+                            // Currency
+                            currency: geo.currency || null,
+                            
+                            // Network information (can contain location hints)
                             isp: geo.isp,
                             org: geo.org,
-                            as: geo.as
-                        });
+                            as: geo.as,
+                            asname: geo.asname || null,
+                            
+                            // Reverse DNS (sometimes contains location)
+                            reverse: geo.reverse || null,
+                            
+                            // Connection type
+                            mobile: geo.mobile || false,
+                            proxy: geo.proxy || false,
+                            hosting: geo.hosting || false,
+                            
+                            // Additional parsed location info from ISP/Org names
+                            locationHints: parseLocationFromISP(geo.isp, geo.org, geo.city)
+                        };
+                        
+                        resolve(location);
                     } else {
                         resolve(null);
                     }
@@ -117,6 +153,41 @@ function getGeolocation(ip) {
             resolve(null);
         });
     });
+}
+
+// Helper function to extract location hints from ISP/Organization names
+function parseLocationFromISP(isp, org, city) {
+    const hints = {
+        districts: [],
+        areas: [],
+        localities: []
+    };
+    
+    if (!isp && !org) return hints;
+    
+    const text = `${isp || ''} ${org || ''}`.toLowerCase();
+    
+    // Common Indian districts/areas that might appear in ISP names
+    const indianDistricts = [
+        'andheri', 'bandra', 'borivali', 'chembur', 'dadar', 'ghatkopar', 'goregaon', 'juhu', 'kandivali', 'kurla', 'malad', 'mulund', 'powai', 'thane', 'vashi',
+        'connaught place', 'karol bagh', 'lajpat nagar', 'saket', 'dwarka', 'rohini', 'noida', 'gurgaon', 'faridabad',
+        'mumbai', 'delhi', 'bangalore', 'hyderabad', 'chennai', 'kolkata', 'pune', 'ahmedabad', 'surat'
+    ];
+    
+    // Check for district mentions
+    indianDistricts.forEach(district => {
+        if (text.includes(district)) {
+            hints.districts.push(district);
+        }
+    });
+    
+    // Check for area codes or localities
+    const areaCodeMatch = text.match(/\b\d{3,6}\b/);
+    if (areaCodeMatch) {
+        hints.areas.push(areaCodeMatch[0]);
+    }
+    
+    return hints;
 }
 
 // Helper function to log data
@@ -182,9 +253,17 @@ app.post('/log-visitor', async (req, res) => {
     console.log('🎯 SCAMMER VISITED - COMPREHENSIVE DATA CAPTURED:');
     console.log('IP Address:', visitorData.ip);
     if (geolocation) {
-        console.log('📍 Location:', `${geolocation.city}, ${geolocation.region}, ${geolocation.country}`);
+        let locationStr = geolocation.city || '';
+        if (geolocation.district) locationStr += `, ${geolocation.district}`;
+        if (geolocation.region) locationStr += `, ${geolocation.region}`;
+        if (geolocation.country) locationStr += `, ${geolocation.country}`;
+        console.log('📍 Location:', locationStr);
         console.log('📍 Coordinates:', `${geolocation.latitude}, ${geolocation.longitude}`);
         console.log('📍 ISP:', geolocation.isp);
+        if (geolocation.district) console.log('📍 District:', geolocation.district);
+        if (geolocation.locationHints && geolocation.locationHints.d takeicts.length > 0) {
+            console.log('📍 Location Hints from ISP:', geolocation.locationHints.districts.join(', '));
+        }
     }
     console.log('User Agent:', visitorData.userAgent);
     console.log('Device Type:', visitorData.deviceType);
