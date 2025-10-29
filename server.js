@@ -315,6 +315,46 @@ app.post('/log-unload', (req, res) => {
     res.json({ status: 'success' });
 });
 
+// Log exact browser location (GPS coordinates)
+app.post('/log-visitor-location', async (req, res) => {
+    const ip = getClientIP(req);
+    const locationData = {
+        ...req.body,
+        ip: ip,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Update visitor record with exact location if available
+    if (locationData.exactLocation && locationData.exactLocation.latitude) {
+        try {
+            const existingData = JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'));
+            // Find the most recent visitor entry with this IP and update it
+            for (let i = existingData.length - 1; i >= 0; i--) {
+                if (existingData[i].type === 'visitor' && existingData[i].data.ip === ip) {
+                    // Add exact location to existing record
+                    existingData[i].data.exactLocation = locationData.exactLocation;
+                    fs.writeFileSync(LOG_FILE, JSON.stringify(existingData, null, 2));
+                    console.log('✅ EXACT GPS LOCATION CAPTURED:');
+                    console.log(`📍 Exact Coordinates: ${locationData.exactLocation.latitude}, ${locationData.exactLocation.longitude}`);
+                    console.log(`📍 Accuracy: ${locationData.exactLocation.accuracy}m`);
+                    break;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating location:', error);
+        }
+    } else if (locationData.exactLocation && locationData.exactLocation.denied) {
+        console.log('❌ User denied location access');
+    }
+    
+    logData({
+        type: 'location_update',
+        data: locationData
+    });
+    
+    res.json({ status: 'success' });
+});
+
 // API endpoint to get stats
 app.get('/admin/api', (req, res) => {
     try {
@@ -332,7 +372,8 @@ app.get('/admin/api', (req, res) => {
             visitors: data.filter(item => item.type === 'visitor').map(item => ({
                 timestamp: item.data.timestamp,
                 ip: item.data.ip,
-                location: item.data.location,
+                location: item.data.location, // IP-based location (approximate)
+                exactLocation: item.data.exactLocation, // Browser GPS (exact coordinates)
                 userAgent: item.data.userAgent,
                 deviceType: item.data.deviceType,
                 osName: item.data.osName,
